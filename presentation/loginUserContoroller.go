@@ -7,7 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Ginを使うことも視野に入れて作成
 func (uc *UserControllerImpl) LoginUser(c *gin.Context) {
 	user := repository.User{}
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -25,5 +24,4 @@ func (uc *UserControllerImpl) LoginUser(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"Login Success": "true"})
-	return
 }
