@@ -1,6 +1,7 @@
 package infrastructure
 
 import (
+	"database/sql"
 	"fmt"
 	"habittracker/domain/repository"
 )
@@ -11,6 +12,7 @@ type HabitRepositoryImpl struct {
 
 func NewHabitRepositoryImpl() (*HabitRepositoryImpl, error) {
 	db, err := NewDbRepositoryImpl()
+	db.con.Exec("CREATE TABLE IF NOT EXISTS habits (id VARCHAR(255) PRIMARY KEY, user_id VARCHAR(255), habit_name VARCHAR(255), record_id VARCHAR(255))")
 	if err != nil {
 		return nil, err
 	}
@@ -18,18 +20,18 @@ func NewHabitRepositoryImpl() (*HabitRepositoryImpl, error) {
 }
 
 func (h *HabitRepositoryImpl) CreateHabit(habitID string, userID string, habitName string) error {
-	query := fmt.Sprintf("INSERT INTO habits (id, user_id, habit_name) VALUES (%s, %s, %s)", habitID, userID, habitName)
-	return h.dbCon.INSERT(query)
+	query := fmt.Sprintf("INSERT INTO habits (id, user_id, habit_name) VALUES ($1, $2, $3)")
+	return h.dbCon.INSERT(query, habitID, userID, habitName)
 }
 
 func (h *HabitRepositoryImpl) DeleteHabit(habitID string) error {
-	query := fmt.Sprintf("DELETE FROM habits WHERE id = %s", habitID)
-	return h.dbCon.DELETE(query)
+	query := fmt.Sprintf("DELETE FROM habits WHERE id = ($1)")
+	return h.dbCon.DELETE(query, habitID)
 }
 
 func (h *HabitRepositoryImpl) GetHabit(id string) (*repository.Habit, error) {
-	query := fmt.Sprintf("SELECT * FROM habits WHERE id = %s", id)
-	rows, err := h.dbCon.SELECT(query)
+	query := fmt.Sprintf("SELECT * FROM habits WHERE id = ($1)")
+	rows, err := h.dbCon.SELECT(query, id)
 	if err != nil {
 		return nil, err
 	}
@@ -44,9 +46,9 @@ func (h *HabitRepositoryImpl) GetHabit(id string) (*repository.Habit, error) {
 	return habit, nil
 }
 
-func (h *HabitRepositoryImpl) GetAllHabits(userID string) ([]*repository.Habit, error) {
-	query := fmt.Sprintf("SELECT * FROM habits WHERE user_id = %s", userID)
-	rows, err := h.dbCon.SELECT(query)
+func (h *HabitRepositoryImpl) GetAllHabits(userId string) ([]*repository.Habit, error) {
+	query := "SELECT * FROM habits WHERE user_id = $1"
+	rows, err := h.dbCon.SELECT(query, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -54,9 +56,15 @@ func (h *HabitRepositoryImpl) GetAllHabits(userID string) ([]*repository.Habit, 
 	defer rows.Close()
 	for rows.Next() {
 		habit := &repository.Habit{}
-		err := rows.Scan(habit.Id, habit.UserId, habit.HabitName, habit.RecordId)
+		var recordId sql.NullString
+		err := rows.Scan(&habit.Id, &habit.UserId, &habit.HabitName, &recordId)
 		if err != nil {
 			return nil, err
+		}
+		if recordId.Valid {
+			habit.RecordId = recordId.String
+		} else {
+			habit.RecordId = ""
 		}
 		habits = append(habits, habit)
 	}

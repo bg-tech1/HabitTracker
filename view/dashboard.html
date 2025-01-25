@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>習慣トラッカー</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/view/style.css">
+</head>
+
+<body>
+    <div class="container my-4">
+        <h1>習慣トラッカー</h1>
+
+        <!-- Habit List Section -->
+        <div id="habit-list"></div>
+    </div>
+
+    <!-- Floating Button -->
+    <button class="floating-btn" id="open-modal">+</button>
+
+    <!-- Modal for Adding Habit -->
+    <div class="modal" id="habit-modal">
+        <div class="modal-content">
+            <h2>新しい習慣を追加</h2>
+            <div class="input-group mb-3">
+                <input type="text" id="habit-input" class="form-control" placeholder="習慣を入力してください">
+            </div>
+            <button class="btn btn-primary" id="add-habit-btn">追加</button>
+            <button class="btn btn-secondary mt-2" id="close-modal">閉じる</button>
+        </div>
+    </div>
+
+    <!-- Modal for Logging Execution Date -->
+    <div class="modal" id="log-modal">
+        <div class="modal-content">
+            <h2>実行日を記録</h2>
+            <div class="input-group mb-3">
+                <label for="log-date-input" class="input-group-text">実行日</label>
+                <input type="date" id="log-date-input" class="form-control date-input">
+            </div>
+            <button class="btn btn-primary" id="log-date-btn">記録</button>
+            <button class="btn btn-secondary mt-2" id="close-log-modal">閉じる</button>
+        </div>
+    </div>
+    <script src="dashboard.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

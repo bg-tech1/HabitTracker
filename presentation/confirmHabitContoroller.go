@@ -7,10 +7,16 @@ import (
 )
 
 func (hc *HabitControllerImpl) ConfirmHabit(c *gin.Context) {
-	habit, err := hc.hr.ConfirmHabit(c.Param("id"))
+	sessionID, err := c.Cookie("session_id")
+
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"Unauthorized": err.Error()})
+		c.JSON(http.StatusUnauthorized, gin.H{"Can't get session_id from cookie": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"Habit": habit})
+	habit, err := hc.hr.ConfirmAllHabits(sessionID)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"Can't get habit": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"habit": habit})
 }

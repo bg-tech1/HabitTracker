@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 type DbRepositoryImpl struct {
@@ -12,41 +14,41 @@ type DbRepositoryImpl struct {
 
 func NewDbRepositoryImpl() (*DbRepositoryImpl, error) {
 	dbInfo := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("DB_HOST"), os.Getenv("DB_PORT"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
-	db, err := sql.Open(os.Getenv("DB_DRIVER_NAME"), dbInfo)
+		os.Getenv("POSTGRES_HOSTNAME"), os.Getenv("DB_PORT"), os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_PASSWORD"), os.Getenv("POSTGRES_DB"))
+	c, err := sql.Open("postgres", dbInfo)
 	if err != nil {
 		return nil, err
 	}
-	err = db.Ping()
+	err = c.Ping()
 	if err != nil {
 		return nil, err
 	}
-	return &DbRepositoryImpl{con: db}, nil
+	c.Exec("CREATE TABLE IF NOT EXISTS sessions (session_id VARCHAR(255) PRIMARY KEY, user_id VARCHAR(255))")
+	return &DbRepositoryImpl{con: c}, nil
 }
 
-func (d *DbRepositoryImpl) SELECT(query string) (*sql.Rows, error) {
-	rows, err := d.con.Query(query)
+func (d *DbRepositoryImpl) SELECT(query string, args ...interface{}) (*sql.Rows, error) {
+	rows, err := d.con.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 	return rows, nil
 }
 
-func (d *DbRepositoryImpl) INSERT(query string) error {
-	return d.ExecQuery(query)
+func (d *DbRepositoryImpl) INSERT(query string, args ...interface{}) error {
+	return d.ExecQuery(query, args...)
 }
 
-func (d *DbRepositoryImpl) UPDATE(query string) error {
-	return d.ExecQuery(query)
+func (d *DbRepositoryImpl) UPDATE(query string, args ...interface{}) error {
+	return d.ExecQuery(query, args...)
 }
 
-func (d *DbRepositoryImpl) DELETE(query string) error {
-	return d.ExecQuery(query)
+func (d *DbRepositoryImpl) DELETE(query string, args ...interface{}) error {
+	return d.ExecQuery(query, args...)
 }
 
-func (d *DbRepositoryImpl) ExecQuery(query string) error {
-	_, err := d.con.Exec(query)
+func (d *DbRepositoryImpl) ExecQuery(query string, args ...interface{}) error {
+	_, err := d.con.Exec(query, args...)
 	if err != nil {
 		return err
 	}

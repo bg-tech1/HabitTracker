@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"habittracker/pkg"
 	"habittracker/presentation"
 
@@ -15,11 +16,13 @@ func main() {
 	engine := gin.Default()
 	// ロギング
 	engine.Use(pkg.Logger)
+	// 静的ファイルの配信
+	engine.Static("/view", "./view")
 	appEngine := engine.Group("/app")
 	{
 		h := appEngine.Group("/habit")
 		{
-			h.POST("/confirm", hc.ConfirmHabit)
+			h.GET("/dashboard", hc.ConfirmHabit)
 			h.POST("/delete", hc.DeleteHabit)
 			h.POST("/create", hc.CreateHabit)
 		}
@@ -27,7 +30,9 @@ func main() {
 		{
 			u.POST("/login", uc.LoginUser)
 			u.POST("/register", uc.RegisterUser)
+			// u.GET("/info", uc.GetUserInfo)
 		}
 	}
 	engine.Run(":8080")
+	fmt.Println("Server is running on port 8080")
 }

@@ -14,6 +14,7 @@ type HabitController interface {
 
 type HabitControllerImpl struct {
 	hr usecase.HabitBlg
+	ur usecase.UserBlg
 }
 
 func NewHabitControllerImpl() *HabitControllerImpl {
@@ -21,5 +22,9 @@ func NewHabitControllerImpl() *HabitControllerImpl {
 	if err != nil {
 		panic(err)
 	}
-	return &HabitControllerImpl{hr: hr}
+	ur, err := usecase.NewUserBlgImpl()
+	if err != nil {
+		panic(err)
+	}
+	return &HabitControllerImpl{hr: hr, ur: ur}
 }
